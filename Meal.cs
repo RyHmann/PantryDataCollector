@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace WebScrapeTest
+namespace PantryDataCollector
 {
     class Meal
     {
