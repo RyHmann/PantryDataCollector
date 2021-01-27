@@ -76,7 +76,7 @@ namespace PantryDataCollector
                 Console.WriteLine("Scraping data...");
                 // Scrape Data
                 //Title
-                var recipeTitle = webData.DocumentNode.SelectSingleNode("//h1[@class='entry-title']");
+                var recipeName = webData.DocumentNode.SelectSingleNode("//h1[@class='entry-title']");
 
                 //Description
                 var recipeDescription = webData.DocumentNode.SelectSingleNode("//div[@class='tasty-recipes-description-body']/p");
@@ -95,71 +95,16 @@ namespace PantryDataCollector
                     .SelectSingleNode(".//a/img");
 
                 //Convert to Meal Class
-                
-                var mealToAdd = new Meal();
+                var nodeParser = new NodeParser(url);
+                var mealToAdd = nodeParser.NodeToMeal(recipeName, recipeDescription, recipeInstructions, recipeIngredients, url);
 
-                //Meal Title
-                mealToAdd.Title = recipeTitle.InnerText;
-
-                //Meal URL
-                mealToAdd.URL = url;
-
-                //Meal Description
-                mealToAdd.Description = recipeDescription.InnerText;
-
-                //Meal Instructions
-                var instructionSB = new StringBuilder();
-                foreach (var node in recipeInstructions)
-                {
-                    var stepUnformatted = node.Attributes["id"].Value;
-                    var stepDecoded = HttpUtility.HtmlDecode(stepUnformatted);
-                    var stepSplit = stepDecoded.Split('-')[2];
-
-                    var instructionsUnformatted = node.InnerText;
-                    //Trim Instructions
-
-                    instructionSB.Append(stepSplit + ". ");
-                    instructionSB.Append(instructionsUnformatted);
-                }
-                var instructionString = instructionSB.ToString();
-                var instructionStringFormatted = HttpUtility.HtmlDecode(instructionString);
-                mealToAdd.Instructions = instructionStringFormatted;
-
-                //Meal Ingredients
-                var ingredients = new List<string>();
-                Console.WriteLine(recipeIngredients.Count());
-                foreach (var node in recipeIngredients)
-                {
-                    var ingredientUnformatted = node.InnerText;
-
-                    //Remove extraneous details from ingredients
-                    if (ingredientUnformatted.Contains(','))
-                    {
-                        var ingredient = ingredientUnformatted.Split(',')[0].Trim();
-                        ingredients.Add(ingredient);
-                    }
-                    else
-                    {
-                        ingredients.Add(ingredientUnformatted.Trim());
-                    }
-                }
-                mealToAdd.Ingredients = ingredients;
-
-                //Meal Thumbnail
-                var fileNameBuilder = new StringBuilder();
-                var recipeWebsite = url.Split('/');
-                var recipeWebsiteName = recipeWebsite[2].Replace(".com", "");
-                var recipeName = mealToAdd.Title.Replace(" ", "").ToLower();
-                fileNameBuilder.Append(recipeWebsiteName + "_" + recipeName + ".jpeg");
-                var fileName = fileNameBuilder.ToString();
-
+                //Download thumbnail
+                var fileName = mealToAdd.Thumbnail;
                 string directoryToStoreImgs = @"F:\Pantry\Thumbnails\";
                 HtmlAttribute imgSrc = recipeThumbnail.Attributes["src"];
                 string imgSrcString = imgSrc.Value;
                 string filePath = Path.Combine(directoryToStoreImgs, fileName);
 
-
-                //Download thumbnail
                 using (var imgClient = new WebClient())
                 {
                     imgClient.DownloadFile(imgSrcString, filePath);
@@ -167,7 +112,6 @@ namespace PantryDataCollector
                 mealToAdd.Thumbnail = fileName.ToString();
 
                 //Save JSON
-
                 var jsonFilePath = @"F:\Pantry\XXX.txt";
 
                 if (File.Exists(jsonFilePath))
