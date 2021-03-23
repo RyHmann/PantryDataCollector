@@ -1,4 +1,5 @@
 ﻿using HtmlAgilityPack;
+using PantryDataCollector.webtargets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,27 @@ namespace PantryDataCollector
 {
     public class Scraper
     {
+        private HtmlWeb _web { get; set; }
+        private PinchOfYumScraper _webTarget { get; set; }
+        private string _url { get; set; }
+
+        public Scraper(string url)
+        {
+            _web = new HtmlWeb();
+            _webTarget = new PinchOfYumScraper();
+            _url = url;
+            StartScrape();
+        }
+
+        public void StartScrape()
+        {
+            HtmlDocument webData = _web.Load(_url);
+            if (RecipePageCheck(webData))
+            {
+
+            }
+        }
+
         public bool RecipePageCheck(HtmlDocument webpage)
         {
             //Confirm if this is a recipe page

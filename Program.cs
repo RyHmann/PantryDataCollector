@@ -25,13 +25,13 @@ namespace PantryDataCollector
                 .WriteTo.Console()
                 .CreateLogger();
 
-            Log.Logger.Information("Demo starting up!");
+            Log.Logger.Information("Web crawl initiated");
 
-            await DemoSimpleCrawler();
-            await DemoSinglePageRequest();
+            await RecipeCrawler();
+            await PageRequest();
         }
 
-        private static async Task DemoSimpleCrawler()
+        private static async Task RecipeCrawler()
         {
             var config = new CrawlConfiguration
             {
@@ -40,12 +40,11 @@ namespace PantryDataCollector
                 MaxCrawlDepth = 1
             };
             var crawler = new PoliteWebCrawler(config);
-
             crawler.PageCrawlCompleted += PageCrawlCompleted;//Several events available...
             var crawlResult = await crawler.CrawlAsync(new Uri("https://xxx/pg10"));
         }
 
-        private static async Task DemoSinglePageRequest()
+        private static async Task PageRequest()
         {
             var pageRequester = new PageRequester(new CrawlConfiguration(), new WebContentExtractor());
 
