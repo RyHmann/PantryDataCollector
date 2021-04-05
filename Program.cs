@@ -27,21 +27,24 @@ namespace PantryDataCollector
 
             Log.Logger.Information("Web crawl initiated");
 
-            await RecipeCrawler();
+            string siteToCrawl = "https://pinchofyum.com/recipes/all";
+            await RecipeCrawler(siteToCrawl);
             await PageRequest();
         }
 
-        private static async Task RecipeCrawler()
+        private static async Task RecipeCrawler(string url)
         {
             var config = new CrawlConfiguration
             {
-                MaxPagesToCrawl = 100, //Only crawl 10 pages
-                MinCrawlDelayPerDomainMilliSeconds = 10000, //Wait this many millisecs between requests,
+                MaxPagesToCrawl = 100,
+                MaxConcurrentThreads = 2,
+                IsUriRecrawlingEnabled = false,
+                MinCrawlDelayPerDomainMilliSeconds = 3000,
                 MaxCrawlDepth = 1
             };
             var crawler = new PoliteWebCrawler(config);
             crawler.PageCrawlCompleted += PageCrawlCompleted;//Several events available...
-            var crawlResult = await crawler.CrawlAsync(new Uri("https://xxx/pg10"));
+            var crawlResult = await crawler.CrawlAsync(new Uri(url));
         }
 
         private static async Task PageRequest()

@@ -23,6 +23,21 @@ namespace PantryDataCollector.webtargets
             this.Ingredients = new List<string> { "//div[@class='tasty-recipes-ingredients']", ".//ul/li/strong" };
             this.Thumbnail = new List<string> { "//div[@class='entry-content']", ".//a/img" };
         }
+        public bool RecipePageCheck(HtmlDocument webpage)
+        {
+            //Confirm if this is a recipe page
+            var recipePageCheck = webpage.DocumentNode.SelectSingleNode("//header[@class='entry-header']/p/a/text()");
+            var confirmText = "Jump To Recipe";
+            if (recipePageCheck != null)
+            {
+                var headerText = recipePageCheck.InnerText;
+                if (String.Equals(headerText, confirmText, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
     }
 
